@@ -100,3 +100,13 @@ then
 fi
 
 jq --argjson poll_for_source_changes "$poll_for_source_changes" '.pipeline.source.pollForSourceChanges = $poll_for_source_changes' "$pipeline_definition_path" > tmp.json && mv tmp.json "$pipeline_definition_path"
+
+
+if [ -z "$configuration" ]
+then
+    echo "Please provide a value for the --configuration parameter"
+    exit
+fi
+
+build_config=$(echo "{\"BUILD_CONFIGURATION\": \"$configuration\"}" | jq -c .)
+jq --argjson build_config "$build_config" '.pipeline.stages[].actions[].EnvironmentVariables = $build_config' "$pipeline_definition_path" > tmp.json && mv tmp.json "$pipeline_definition_path"
