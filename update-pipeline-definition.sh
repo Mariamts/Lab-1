@@ -1,12 +1,14 @@
 #!/bin/bash
 
-if !command -v jq &> /dev/null
+# Check if jq is installed
+if ! command -v jq &> /dev/null
  then 
 	 echo "JQ IS NOT INSTALLED"
 	 exit
 fi
 
-if [$# -eq 0] 
+# Check if pipeline definition path is provided
+if [ $# -eq 0] 
 then 
 	echo "please provide a path to the pipeline definition JSON file"
 	exit
@@ -14,12 +16,14 @@ else
 	pipeline_definition_path="$1"
 fi
 
+# Set default values for variables
 branch="main"
 owner=""
 repo=""
 poll_for_source_changes="false"
 configuration=""
 
+# Parse command line arguments
 while [[ $# -gt 1]]
 do
 	key="$2"
@@ -53,9 +57,10 @@ do
 		echo "Invalid option: $2"
 		exit
 		;;
-esac
+	esac
 done
 
+# Update owner, branch, repo, and poll_for_source_changes if provided
 if [ -n "$owner" ]
 then
     jq --arg owner "$owner" '.pipeline.source.owner = $owner' "$pipeline_definition_path" > tmp.json && mv tmp.json "$pipeline_definition_path"
@@ -76,7 +81,7 @@ then
     jq --argjson poll_for_source_changes "$poll_for_source_changes" '.pipeline.source.pollForSourceChanges = $poll_for_source_changes' "$pipeline_definition_path" > tmp.json && mv tmp.json "$pipeline_definition_path"
 fi
 
-
+# Check if pipeline definition contains necessary properties
 if ! jq '(has("pipeline")' "$pipeline_definition_path" &> /dev/null
 then
 	echo "The given JSON definition doesnt contain the necessary pipeline property"
@@ -91,7 +96,7 @@ fi
 
 if ! jq '.pipeline | .source | has("owner")' "$pipeline_definition_path" &> /dev/null
 then
-	echo "The given JSON definition doesn't contain the necessaty pipeline property"
+	echo "The given JSON definition doesn't contain the necessary pipeline property"
 	exit
 fi
 
