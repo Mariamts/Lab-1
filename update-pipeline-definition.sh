@@ -56,6 +56,26 @@ do
 esac
 done
 
+if [ -n "$owner" ]
+then
+    jq --arg owner "$owner" '.pipeline.source.owner = $owner' "$pipeline_definition_path" > tmp.json && mv tmp.json "$pipeline_definition_path"
+fi
+
+if [ -n "$branch" ]
+then
+    jq --arg branch "$branch" '.pipeline.source.branch = $branch' "$pipeline_definition_path" > tmp.json && mv tmp.json "$pipeline_definition_path"
+fi
+
+if [ -n "$repo" ]
+then
+    jq --arg repo "$repo" '.pipeline.source.repo = $repo' "$pipeline_definition_path" > tmp.json && mv tmp.json "$pipeline_definition_path"
+fi
+
+if [ -n "$poll_for_source_changes" ]
+then
+    jq --argjson poll_for_source_changes "$poll_for_source_changes" '.pipeline.source.pollForSourceChanges = $poll_for_source_changes' "$pipeline_definition_path" > tmp.json && mv tmp.json "$pipeline_definition_path"
+fi
+
 
 if ! jq '(has("pipeline")' "$pipeline_definition_path" &> /dev/null
 then
